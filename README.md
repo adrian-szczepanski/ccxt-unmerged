@@ -18,7 +18,6 @@ bitforexfu<br/>
 bitkub<br/>
 bitopro<br/>
 bitrue<br/>
-bitzfu<br/>
 bkex<br/>
 btse<br/>
 ceo<br/>
