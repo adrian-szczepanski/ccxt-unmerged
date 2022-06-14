@@ -345,6 +345,26 @@ class bitclude(Exchange):
             result[currencyCode] = account
         return self.parse_balance(result)
 
+    def parse_balance(self, balance):
+        currencies = self.omit(balance, ['info', 'free', 'used', 'total']).keys()
+        balance['free'] = {}
+        balance['used'] = {}
+        balance['total'] = {}
+        for currency in currencies:
+            if balance[currency].get('total') is None:
+                if balance[currency].get('free') is not None and balance[currency].get('used') is not None:
+                    balance[currency]['total'] = self.sum(balance[currency].get('free'), balance[currency].get('used'))
+            if balance[currency].get('free') is None:
+                if balance[currency].get('total') is not None and balance[currency].get('used') is not None:
+                    balance[currency]['free'] = self.sum(balance[currency]['total'], -balance[currency]['used'])
+            if balance[currency].get('used') is None:
+                if balance[currency].get('total') is not None and balance[currency].get('free') is not None:
+                    balance[currency]['used'] = self.sum(balance[currency]['total'], -balance[currency]['free'])
+            balance['free'][currency] = balance[currency]['free']
+            balance['used'][currency] = balance[currency]['used']
+            balance['total'][currency] = balance[currency]['total']
+        return balance
+
     def create_order(self, symbol, type, side, amount, price=None, params={}):
         self.load_markets()
         market = self.market(symbol)
