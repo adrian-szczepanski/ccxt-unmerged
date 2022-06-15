@@ -628,3 +628,25 @@ class bitclude(Exchange):
         if params:
             url += '?' + self.urlencode(params)
         return {'url': url, 'method': method, 'body': body, 'headers': headers}
+
+    def handle_errors(self, httpCode, reason, url, method, headers, body, response, requestHeaders, requestBody):
+        if not response:
+            return  # fallback to default error handler
+
+        # {
+        #     "info": {
+        #         "success": False,
+        #         "timestamp": "0.95747600 1655298081",
+        #         "code": "5051",
+        #         "message": "Not enough money",
+        #     },
+        # }
+
+
+        info = self.safe_value(response, 'info')
+        success = self.safe_value(info, 'success')
+        if not success:
+            error_message = self.safe_string(info, 'message')
+            feedback = self.id + ' ' + body
+            self.throw_exactly_matched_exception(self.exceptions, error_message, feedback)
+            raise ExchangeError(feedback)  # unknown message
