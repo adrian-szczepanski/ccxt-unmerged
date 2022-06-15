@@ -642,13 +642,11 @@ class bitclude(Exchange):
         #     },
         # }
 
-        success = self.safe_value(response, 'success')
-        if success is None:
-            info = self.safe_value(response, 'info', {})
-            success = self.safe_value(info, 'success')
+        info = self.safe_value(response, 'info', {})
+        success = self.safe_value(info, 'success') or self.safe_value(response, 'success')
 
         if success is False:
-            error_message = self.safe_string(info, 'message')
+            error_message = self.safe_string(info, 'message') or self.safe_string(response, 'message')
             feedback = self.id + ' ' + body
             self.throw_exactly_matched_exception(self.exceptions, error_message, feedback)
             raise ExchangeError(feedback)  # unknown message
