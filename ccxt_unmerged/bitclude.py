@@ -76,7 +76,7 @@ class bitclude(Exchange):
             'exceptions': {
                 # stolen, todo rewrite
                 'exact': {
-                    'Not enough money': InsufficientFunds,  # {"error":"Not enough balances","success":false}
+                    'Not enough money': InsufficientFunds,  # {"error":"Not enough money","success":false}
                     'InvalidPrice': InvalidOrder,  # {"error":"Invalid price","success":false}
                     'Size too small': InvalidOrder,  # {"error":"Size too small","success":false}
                     'Missing parameter price': InvalidOrder,  # {"error":"Missing parameter price","success":false}
@@ -648,5 +648,6 @@ class bitclude(Exchange):
         if success is False:
             error_message = self.safe_string(info, 'message') or self.safe_string(response, 'message')
             feedback = self.id + ' ' + body
-            self.throw_exactly_matched_exception(self.exceptions, error_message, feedback)
+            self.throw_exactly_matched_exception(self.exceptions['exact'], error_message, feedback)
+            self.throw_broadly_matched_exception(self.exceptions['broad'], error_message, feedback)
             raise ExchangeError(feedback)  # unknown message
